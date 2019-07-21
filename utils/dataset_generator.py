@@ -32,6 +32,9 @@ class DatasetGenerator(metaclass=ABCMeta):
         """
 
         if not os.path.isfile(data_path):
+            logging.error(
+                'There is no dataset under \'{}\' path'.format(data_path)
+            )
             raise FileNotFoundError(
                 errno.ENOENT, os.strerror(errno.ENOENT), data_path
             )
