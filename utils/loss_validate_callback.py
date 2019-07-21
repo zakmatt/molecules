@@ -2,6 +2,7 @@ import numpy as np
 import os
 from keras.callbacks import Callback
 
+
 class LossValidateCallback(Callback):
     """"""
 
