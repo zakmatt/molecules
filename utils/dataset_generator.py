@@ -163,3 +163,15 @@ class DatasetGenerator(metaclass=ABCMeta):
         """
 
         return self._transform_input_features(self._x_test), self._y_test
+
+    def loss_validate_data(self):
+        """Get data to evaluate the network performance after each epoch
+
+        :return: training and validation data
+        :rtype: tuple
+        """
+
+        x_train, y_train = self.get_training_data()
+        x_val, y_val = self.get_validation_data()
+
+        return x_train, y_train, x_val, y_val
