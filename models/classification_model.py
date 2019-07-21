@@ -58,21 +58,21 @@ class ClassModel(metaclass=ABCMeta):
                  save_model_dir, results_file):
         """
 
-        :param input_shape:
-        :type input_shape:
-        :param num_of_targets:
-        :type num_of_targets:
-        :param loss_validate_data:
-        :type loss_validate_data:
-        :param save_model_dir:
-        :type save_model_dir:
-        :param results_file:
-        :type results_file:
+        :param input_shape: input features shape
+        :type input_shape: tuple
+        :param num_of_targets: number of model outputs
+        :type num_of_targets: int
+        :param loss_validate_data: method giving training and validation data
+        :param save_model_dir: directory under which a trained model is saved
+        :type save_model_dir: str
+        :param results_file: name of a file where training results are stored
+        :type results_file: str
         """
 
         self.input_shape = input_shape
         self.num_of_targets = num_of_targets
-        self.model = None
+        self.model = Model()
+        self.save_model_dir = save_model_dir
 
         reduce_on_plateau = ReduceLROnPlateau(
             monitor='val_loss', factor=0.8, patience=10, verbose=1,
@@ -117,6 +117,7 @@ class ClassModel(metaclass=ABCMeta):
         )
 
         self.model = model
+        model.save()
 
     def train(self, x_train, y_train, nb_epochs):
         """Training method
@@ -142,6 +143,14 @@ class ClassModel(metaclass=ABCMeta):
     def load_weights(self, weights_path):
         if hasattr(self, 'model'):
             self.model.load_weights(weights_path)
+
+    def save_model(self):
+        """Save model"""
+
+        file_name = os.path.join(
+            self.save_model_dir, '{}.hdf5'.format(self.name)
+        )
+        self.model.save(file_name)
 
     @abstractmethod
     def transform_input_features(self, input_features):
