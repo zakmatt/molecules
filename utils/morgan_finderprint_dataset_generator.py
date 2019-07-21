@@ -62,8 +62,6 @@ class MorganFingerprintDatasetGenerator(DatasetGenerator):
         binary_vecotrs = [
             np.array(
                 self._morgan_fingerprint_to_binary_vector(morgan_fingerprint)
-            ).reshape(
-                1, NUMBER_OF_BITS
             ) for morgan_fingerprint in morgan_fingerprints
         ]
 
