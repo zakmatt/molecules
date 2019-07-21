@@ -1,4 +1,5 @@
 import keras.backend as K
+import logging
 import os
 
 from abc import ABCMeta, abstractmethod
@@ -11,6 +12,11 @@ from keras.models import Model
 from utils.loss_validate_callback import LossValidateCallback
 
 MASK_VALUE = -1
+
+logging.basicConfig(
+    level=logging.ERROR,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 
 # ADD SOURCE!!!
@@ -31,11 +37,16 @@ def build_masked_loss(loss_function, mask_value=MASK_VALUE):
 
     return masked_loss_function
 
+
 def masked_accuracy(y_true, y_pred):
     dtype = K.floatx()
     total = K.sum(K.cast(K.not_equal(y_true, MASK_VALUE), dtype))
     correct = K.sum(K.cast(K.equal(y_true, K.round(y_pred)), dtype))
     return correct / total
+
+
+class MissingTestSetException(Exception):
+    pass
 
 
 # noinspection PyPep8Naming
@@ -82,7 +93,7 @@ class ClassModel(metaclass=ABCMeta):
     def _model_architecture(self):
         pass
 
-    def create_model(self, input_len):
+    def create_model(self):
         """Create a fine tuned model based on the provided architecture
         :param img_rows: number of rows in an image
         :type img_rows: int
@@ -108,14 +119,17 @@ class ClassModel(metaclass=ABCMeta):
         self.model = model
 
     def train(self, x_train, y_train, nb_epochs):
+        """Training method
+
+        :param x_train: input features
+        :type x_train: np.array
+        :param y_train: output targets
+        :type y_train: np.array
+        :param nb_epochs: number of epochs
+        :type nb_epochs: int
         """
 
-        :param x_train:
-        :param y_train:
-        :param nb_epochs:
-        :return:
-        """
-
+        x_train = self.transform_input_features(x_train)
         if hasattr(self, 'model'):
             self.model.fit(
                 x=x_train,
@@ -128,3 +142,25 @@ class ClassModel(metaclass=ABCMeta):
     def load_weights(self, weights_path):
         if hasattr(self, 'model'):
             self.model.load_weights(weights_path)
+
+    @abstractmethod
+    def transform_input_features(self, input_features):
+        pass
+
+    def predict(self, input_features):
+        """
+
+        :param input_features:
+        :return:
+        """
+
+        transformed_features = self.transform_input_features(input_features)
+
+        self.model.predict(transformed_features)
+
+    def evaluate_on_test_set(self, x_test, y_test):
+
+        x_test = self.transform_input_features(x_test)
+        loss, accuracy = self.model.evaluate(x_test, y_test)
+
+        return loss, accuracy
