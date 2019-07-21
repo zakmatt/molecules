@@ -41,6 +41,7 @@ class DatasetGenerator(metaclass=ABCMeta):
 
         self.data_path = data_path
         self._read_dataset()
+        self._extract_x_y()
         self.divide_into_training_and_test()
 
         # set attributes with None
@@ -90,8 +91,10 @@ class DatasetGenerator(metaclass=ABCMeta):
         if not hasattr(self, '_dataset'):
             raise AttributeError('dataset not loaded.')
 
-        self._x_dataset = self._dataset['smiles']
+        self._x_dataset = self._dataset['smiles'].values
         self._y_dataset = self._dataset.drop(columns=['smiles'])
+        self._y_dataset.fillna(value=-1, inplace=True)
+        self._y_dataset = self._y_dataset.values
 
     def divide_into_training_and_test(self, test_set_size=0.1):
         """Divide dataset into training + validation and test sets
