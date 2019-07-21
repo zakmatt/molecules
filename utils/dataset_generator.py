@@ -114,7 +114,7 @@ class DatasetGenerator(metaclass=ABCMeta):
         self._x_test = x_test
         self._y_test = y_test
 
-    def split_into_training_and_validation_sets(self, validation_set_size):
+    def split_into_training_and_validation(self, validation_set_size=0.1):
         """Divide dataset into training and validation sets
 
         :param validation_set_size: validation set size as a fraction of

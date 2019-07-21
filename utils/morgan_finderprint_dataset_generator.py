@@ -4,6 +4,8 @@ from rdkit.Chem import rdMolDescriptors, rdmolfiles
 
 from utils.dataset_generator import DatasetGenerator
 
+NUMBER_OF_BITS = 256
+
 
 class MorganFingerprintDatasetGenerator(DatasetGenerator):
     """Dataset generator class using binary representation of Morgan
@@ -33,7 +35,7 @@ class MorganFingerprintDatasetGenerator(DatasetGenerator):
 
         bit_info = {}
         return rdMolDescriptors.GetMorganFingerprintAsBitVect(
-            mol_smile, radius=2, bitInfo=bit_info, nBits=256
+            mol_smile, radius=2, bitInfo=bit_info, nBits=NUMBER_OF_BITS
         )
 
     def _transform_input_features(self, input_features):
@@ -58,9 +60,16 @@ class MorganFingerprintDatasetGenerator(DatasetGenerator):
         ]
 
         binary_vecotrs = [
-            self._morgan_fingerprint_to_binary_vector(
-                morgan_fingerprint
+            np.array(
+                self._morgan_fingerprint_to_binary_vector(morgan_fingerprint)
+            ).reshape(
+                1, NUMBER_OF_BITS
             ) for morgan_fingerprint in morgan_fingerprints
         ]
 
+        #binary_vecotrs = np.array(binary_vecotrs)
+        #binary_vecotrs = np.stack(binary_vecotrs, axis=0)
+        # binary_vecotrs = binary_vecotrs.reshape(
+        #    binary_vecotrs.shape[0], 1, binary_vecotrs.shape[1]
+        # )
         return np.array(binary_vecotrs)

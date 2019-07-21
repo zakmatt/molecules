@@ -1,6 +1,5 @@
 import errno
 import joblib
-import numpy as np
 import os
 
 from sklearn.feature_extraction.text import CountVectorizer
@@ -19,7 +18,7 @@ class CountVectorizerDatasetGenerator(DatasetGenerator):
         :param data_path:
         """
 
-        DatasetGenerator.__init__(data_path)
+        DatasetGenerator.__init__(self, data_path)
 
         # count vectorizer object used to transform input data
         self._vect = CountVectorizer(
@@ -37,7 +36,7 @@ class CountVectorizerDatasetGenerator(DatasetGenerator):
         save_path = os.path.join(current_dir_path, 'count_vectorizer.pkl')
         joblib.dump(self._vect, save_path, compress=9)
 
-    def loac_vect(self, path):
+    def load_vect(self, path):
         """Load pickled, pre-trained count vectorizer
 
         :param path: pre-trained, pickled count vectorizer file path
@@ -51,7 +50,7 @@ class CountVectorizerDatasetGenerator(DatasetGenerator):
 
         self._vect = joblib.load(path)
 
-    def split_into_training_and_validation_sets(self, validation_set_size):
+    def split_into_training_and_validation(self, validation_set_size=0.1):
         """Divide dataset into training and validation sets
 
         :param validation_set_size: validation set size as a fraction of
@@ -59,7 +58,7 @@ class CountVectorizerDatasetGenerator(DatasetGenerator):
         :type validation_set_size: float
         """
 
-        super().split_into_training_and_validation_sets(validation_set_size)
+        super().split_into_training_and_validation(validation_set_size)
         self._train_vect()
 
     def _transform_input_features(self, input_features):
@@ -71,4 +70,4 @@ class CountVectorizerDatasetGenerator(DatasetGenerator):
         :rtype: np.array
         """
 
-        return self._vect.transform(input_features)
+        return self._vect.transform(input_features).toarray()

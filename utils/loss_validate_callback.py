@@ -6,7 +6,7 @@ from keras.callbacks import Callback
 class LossValidateCallback(Callback):
     """"""
 
-    def __init__(self, loss_validate_data, results_file):
+    def __init__(self, loss_validate_data, transform_features, results_file):
         """
 
         :param loss_validate_data:
@@ -14,6 +14,7 @@ class LossValidateCallback(Callback):
         """
 
         x_train, y_train, x_val, y_val = loss_validate_data()
+        self.transform_input_features = transform_features
         n = x_val.shape[0]  # number of rows
         index = np.random.choice(x_train.shape[0], n, replace=False)
         self.x_train = x_train[index]
@@ -29,10 +30,10 @@ class LossValidateCallback(Callback):
 
     def on_epoch_end(self, epoch, logs=None):
         train_loss, train_acc = self.model.evaluate(
-            self.x_train, self.y_train
+            self.transform_input_features(self.x_train), self.y_train
         )
         val_loss, val_acc = self.model.evaluate(
-            self.x_val, self.y_val
+            self.transform_input_features(self.x_val), self.y_val
         )
         self.val_loss = val_loss
 
