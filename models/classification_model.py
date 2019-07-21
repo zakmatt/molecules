@@ -54,12 +54,12 @@ class ClassModel(metaclass=ABCMeta):
 
     name = 'class_model'
 
-    def __init__(self, input_shape, num_of_targets, loss_validate_data,
+    def __init__(self, input_len, num_of_targets, loss_validate_data,
                  save_model_dir, results_file):
         """
 
-        :param input_shape: input features shape
-        :type input_shape: tuple
+        :param input_len: number of input features
+        :type input_len: int
         :param num_of_targets: number of model outputs
         :type num_of_targets: int
         :param loss_validate_data: method giving training and validation data
@@ -69,10 +69,14 @@ class ClassModel(metaclass=ABCMeta):
         :type results_file: str
         """
 
-        self.input_shape = input_shape
+        self.input_len = input_len
         self.num_of_targets = num_of_targets
         self.model = Model()
         self.save_model_dir = save_model_dir
+
+        basedir = os.path.join(save_model_dir, self.name.lower())
+        if not os.path.exists(basedir):
+            os.makedirs(basedir)
 
         reduce_on_plateau = ReduceLROnPlateau(
             monitor='val_loss', factor=0.8, patience=10, verbose=1,
@@ -85,6 +89,7 @@ class ClassModel(metaclass=ABCMeta):
             reduce_on_plateau,
             LossValidateCallback(
                 loss_validate_data,
+                self.transform_input_features,
                 results_file
             )
         ]
@@ -117,7 +122,6 @@ class ClassModel(metaclass=ABCMeta):
         )
 
         self.model = model
-        model.save()
 
     def train(self, x_train, y_train, nb_epochs):
         """Training method

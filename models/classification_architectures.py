@@ -19,7 +19,7 @@ class DenseNetwork(ClassModel):
         :rtype: keras.engine.training.Model
         """
 
-        inputs = Input(shape=self.input_shape)  # (len, )
+        inputs = Input(shape=(self.input_len,))  # (len, )
         x = Dense(1024, activation='relu')(inputs)
         x = Dense(256, activation='relu')(x)
         x = Dense(64, activation='relu')(x)
@@ -27,7 +27,7 @@ class DenseNetwork(ClassModel):
         return inputs, x
 
     def transform_input_features(self, input_features):
-        """Make no transofmration to input features
+        """Make no transformation to input features
 
         :param input_features: input features
         :type input_features: np.array
@@ -50,7 +50,7 @@ class ConvNetwork(ClassModel):
         :rtype: keras.engine.training.Model
         """
 
-        inputs = Input(shape=self.input_shape)
+        inputs = Input(shape=(1, self.input_len))
         x = Convolution1D(128, 11, strides=1, padding='same')(
             inputs)
         x = BatchNormalization()(x)
