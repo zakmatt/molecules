@@ -54,14 +54,17 @@ class ClassModel(metaclass=ABCMeta):
 
     name = 'class_model'
 
-    def __init__(self, input_len, num_of_targets, loss_validate_data,
-                 save_model_dir, results_file):
+    def __init__(self, input_len, num_of_targets,
+                 loss_validate_data=None, save_model_dir=None,
+                 results_file=None, evaluate=False):
         """
 
         :param input_len: number of input features
         :type input_len: int
         :param num_of_targets: number of model outputs
         :type num_of_targets: int
+        :param evaluate: is model in the evaluation mode
+        :type evaluate: bool
         :param loss_validate_data: method giving training and validation data
         :param save_model_dir: directory under which a trained model is saved
         :type save_model_dir: str
@@ -74,32 +77,34 @@ class ClassModel(metaclass=ABCMeta):
         self.model = Model()
         self.save_model_dir = save_model_dir
 
-        basedir = os.path.join(save_model_dir, self.name.lower())
-        if not os.path.exists(basedir):
-            os.makedirs(basedir)
+        # not in the evaluation mode - training
+        if not evaluate:
+            basedir = os.path.join(save_model_dir, self.name.lower())
+            if not os.path.exists(basedir):
+                os.makedirs(basedir)
 
-        reduce_on_plateau = ReduceLROnPlateau(
-            monitor='val_loss', factor=0.8, patience=10, verbose=1,
-            mode='auto', min_delta=0.0001, cooldown=5, min_lr=0.0001
-        )
-
-        model_path = os.path.join(basedir, 'best_model.hdf5')
-        model_save = ModelCheckpoint(
-            model_path, save_best_only=True,
-            monitor='val_loss', mode='min'
-        )
-
-        results_file = os.path.join(basedir, results_file)
-
-        self.callbacks = [
-            reduce_on_plateau,
-            model_save,
-            LossValidateCallback(
-                loss_validate_data,
-                self.transform_input_features,
-                results_file
+            reduce_on_plateau = ReduceLROnPlateau(
+                monitor='val_loss', factor=0.8, patience=10, verbose=1,
+                mode='auto', min_delta=0.0001, cooldown=5, min_lr=0.0001
             )
-        ]
+
+            model_path = os.path.join(basedir, 'best_model.hdf5')
+            model_save = ModelCheckpoint(
+                model_path, save_best_only=True,
+                monitor='val_loss', mode='min'
+            )
+
+            results_file = os.path.join(basedir, results_file)
+
+            self.callbacks = [
+                reduce_on_plateau,
+                model_save,
+                LossValidateCallback(
+                    loss_validate_data,
+                    self.transform_input_features,
+                    results_file
+                )
+            ]
 
     @abstractmethod
     def _model_architecture(self):

@@ -87,8 +87,20 @@ class DatasetGenerator(metaclass=ABCMeta):
         self._dataset = pd.read_csv(self._data_path)
         self._dataset.fillna(value=-1, inplace=True)
 
+    def read_test_dataset(self):
+        """Read dataset and treat it as test set"""
+
+        self.read_dataset()
+        self._x_test = self._dataset['smiles'].values
+        self._y_test = self._dataset.drop(columns=['smiles']).values
+
     def extract_x_y(self):
-        """Extract input features and targets"""
+        """Extract input features and targets from training and test sets
+
+        Extract input features and targets from training and test sets,
+        assuming an input dataset is split before running this method
+
+        """
 
         if not hasattr(self, '_train_val_set'):
             raise AttributeError('dataset not loaded.')
