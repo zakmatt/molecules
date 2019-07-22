@@ -19,16 +19,17 @@ logging.basicConfig(
 )
 
 
-# ADD SOURCE!!!
+# Source: https://github.com/keras-team/keras/issues/3893
 def build_masked_loss(loss_function, mask_value=MASK_VALUE):
     """Builds a loss function that masks based on targets
 
-    Args:
-        loss_function: The loss function to mask
-        mask_value: The value to mask in the targets
+    :param loss_function: The loss function to mask
+    :type loss_function:
+    :param mask_value: The value to mask in the targets
+    :type mask_value: 
 
-    Returns:
-        function: a loss function that acts like loss_function with masked inputs
+    :return: function: a loss function that acts like loss_function
+    with masked inputs
     """
 
     def masked_loss_function(y_true, y_pred):
