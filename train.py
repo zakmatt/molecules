@@ -1,4 +1,5 @@
 import argparse
+import os
 
 from models.classification_architectures import ConvNetwork, DenseNetwork
 from utils.count_vectorizer_dataset_generator import (
@@ -8,8 +9,20 @@ from utils.morgan_fingerprint_dataset_generator import (
     MorganFingerprintDatasetGenerator
 )
 
+CURRENT_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
+
 
 def train_networks(data_path, number_of_epochs):
+    """Training method
+
+    Training method which trains, saves and evaluates models.
+
+    :param data_path: Path to a dataset
+    :type data_path: str
+    :param number_of_epochs: number of training epochs
+    :type number_of_epochs: int
+    """
+
     dataset_types = [
         CountVectorizerDatasetGenerator, MorganFingerprintDatasetGenerator
     ]
@@ -49,7 +62,9 @@ if __name__ == '__main__':
                         "--data_path",
                         help='Training dataset csv file. '
                              'Default: ./data/data.csv',
-                        default='./data/data.csv',
+                        default=os.path.join(
+                            CURRENT_DIR_PATH, 'data/data.csv'
+                        ),
                         required=False)
     parser.add_argument("-e",
                         "--epochs",

@@ -19,6 +19,18 @@ class WrongInputFeaturesTypeException(Exception):
 
 
 def evaluate(model_type, features_type, test_data_path):
+    """Model evaluation method
+
+    :param model_type: Model type. Either ConvNet or DenseNet
+    :type model_type: str
+    :param features_type: Model input features type. Either Morgan Fingerprint
+    binary vectors representation or bag-of-words using count vectorizer
+    :type features_type: str
+    :param test_data_path: path to test data
+    :type test_data_path: str
+    :return:
+    """
+
     if features_type == 'morgan':
         data_gen = MorganFingerprintDatasetGenerator(test_data_path)
         weights_features_type = 'morgan_fingerprint_data_generator'
