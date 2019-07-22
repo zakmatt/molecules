@@ -50,7 +50,7 @@ class CountVectorizerDatasetGenerator(DatasetGenerator):
 
         self._vect = joblib.load(path)
 
-    def split_into_training_and_validation(self, validation_set_size=0.1):
+    def divide_into_training_and_validation(self, validation_set_size=0.1):
         """Divide dataset into training and validation sets
 
         :param validation_set_size: validation set size as a fraction of
@@ -58,7 +58,7 @@ class CountVectorizerDatasetGenerator(DatasetGenerator):
         :type validation_set_size: float
         """
 
-        super().split_into_training_and_validation(validation_set_size)
+        super().divide_into_training_and_validation(validation_set_size)
         self._train_vect()
 
     def _transform_input_features(self, input_features):

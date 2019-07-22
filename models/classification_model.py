@@ -83,7 +83,7 @@ class ClassModel(metaclass=ABCMeta):
             mode='auto', min_delta=0.0001, cooldown=5, min_lr=0.0001
         )
 
-        results_file = os.path.join(save_model_dir, results_file)
+        results_file = os.path.join(basedir, results_file)
 
         self.callbacks = [
             reduce_on_plateau,
@@ -123,7 +123,7 @@ class ClassModel(metaclass=ABCMeta):
 
         self.model = model
 
-    def train(self, x_train, y_train, nb_epochs):
+    def train(self, x_train, y_train, x_val, y_val, nb_epochs):
         """Training method
 
         :param x_train: input features
@@ -135,13 +135,15 @@ class ClassModel(metaclass=ABCMeta):
         """
 
         x_train = self.transform_input_features(x_train)
+        x_val = self.transform_input_features(x_val)
         if hasattr(self, 'model'):
             self.model.fit(
                 x=x_train,
                 y=y_train,
+                validation_data=(x_val, y_val),
                 epochs=nb_epochs,
                 callbacks=self.callbacks,
-                batch_size=32
+                batch_size=32,
             )
 
     def load_weights(self, weights_path):

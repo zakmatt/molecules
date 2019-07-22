@@ -27,8 +27,7 @@ class DatasetGenerator(metaclass=ABCMeta):
 
     def __init__(self, data_path):
         """
-
-        :param data:
+        :param data_path:
         """
 
         if not os.path.isfile(data_path):
@@ -39,12 +38,9 @@ class DatasetGenerator(metaclass=ABCMeta):
                 errno.ENOENT, os.strerror(errno.ENOENT), data_path
             )
 
-        self.data_path = data_path
-        self._read_dataset()
-        self._extract_x_y()
-        self.divide_into_training_and_test()
-
         # set attributes with None
+        self._train_val_set = None
+        self._test_set = None
         self._x_train_val = None
         self._y_train_val = None
         self._x_test = None
@@ -55,6 +51,12 @@ class DatasetGenerator(metaclass=ABCMeta):
         self._y_val = None
         self._x_test = None
         self._y_test = None
+
+        self.data_path = data_path
+        self._read_dataset()
+        self.divide_into_training_and_test()
+        self.save_train_test_sets()
+        self._extract_x_y()
 
     @property
     def data_path(self):
@@ -84,17 +86,21 @@ class DatasetGenerator(metaclass=ABCMeta):
         """Dataset reading method"""
 
         self._dataset = pd.read_csv(self._data_path)
+        self._dataset.fillna(value=-1, inplace=True)
 
     def _extract_x_y(self):
         """Extract input features and targets"""
 
-        if not hasattr(self, '_dataset'):
+        if not hasattr(self, '_train_val_set'):
             raise AttributeError('dataset not loaded.')
 
-        self._x_dataset = self._dataset['smiles'].values
-        self._y_dataset = self._dataset.drop(columns=['smiles'])
-        self._y_dataset.fillna(value=-1, inplace=True)
-        self._y_dataset = self._y_dataset.values
+        if not hasattr(self, '_test_set'):
+            raise AttributeError('dataset not loaded.')
+
+        self._x_train_val = self._train_val_set['smiles'].values
+        self._y_train_val = self._train_val_set.drop(columns=['smiles']).values
+        self._x_test = self._test_set['smiles'].values
+        self._y_test = self._test_set.drop(columns=['smiles']).values
 
     def divide_into_training_and_test(self, test_set_size=0.1):
         """Divide dataset into training + validation and test sets
@@ -103,18 +109,23 @@ class DatasetGenerator(metaclass=ABCMeta):
         :type test_set_size: float
         """
 
-        x_train_val, x_test, y_train_val, y_test = train_test_split(
-            self._x_dataset,
-            self._y_dataset,
+        train_val, test = train_test_split(
+            self._dataset,
             test_size=test_set_size
         )
+        self._train_val_set = train_val
+        self._test_set = test
 
-        self._x_train_val = x_train_val
-        self._y_train_val = y_train_val
-        self._x_test = x_test
-        self._y_test = y_test
+    def save_train_test_sets(self):
+        """Save train and test sets"""
 
-    def split_into_training_and_validation(self, validation_set_size=0.1):
+        train_path = './data/train_set.csv'
+        test_path = './data/test_set.csv'
+        if not os.path.isfile(train_path) or not os.path.isfile(test_path):
+            self._train_val_set.to_csv('./data/train_set.csv')
+            self._test_set.to_csv('./data/test_set.csv')
+
+    def divide_into_training_and_validation(self, validation_set_size=0.1):
         """Divide dataset into training and validation sets
 
         :param validation_set_size: validation set size as a fraction of
