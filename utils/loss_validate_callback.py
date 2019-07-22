@@ -7,10 +7,11 @@ class LossValidateCallback(Callback):
     """"""
 
     def __init__(self, loss_validate_data, transform_features, results_file):
-        """
+        """Loss validate callback saving training results after each epoch
 
-        :param loss_validate_data:
-        :param results_file:
+        :param loss_validate_data: method returning train and validation data
+        :param results_file: file where results are saved
+        :type results_file: str
         """
 
         x_train, y_train, x_val, y_val = loss_validate_data()
@@ -37,14 +38,14 @@ class LossValidateCallback(Callback):
         )
         self.val_loss = val_loss
 
-        text = '{0}, {1}, {2}, {3}, {4}\n'.format(
+        text = '{0},{1},{2},{3},{4}\n'.format(
             epoch, train_loss, train_acc, val_loss, val_acc
         )
 
         if not os.path.exists(self.results_file):
             with open(self.results_file, 'w') as file:
-                columns = 'epoch, train_loss, train_accuracy, ' \
-                          'validation_loss, validation_accuracy\n'
+                columns = 'epoch,train_loss,train_accuracy,' \
+                          'validation_loss,validation_accuracy\n'
                 file.writelines(columns)
 
         with open(self.results_file, 'a') as file:
