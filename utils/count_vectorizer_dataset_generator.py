@@ -12,6 +12,8 @@ class CountVectorizerDatasetGenerator(DatasetGenerator):
     in order to transform input features
     """
 
+    name = 'count_vectorizer_data_generator'
+
     def __init__(self, data_path):
         """
 

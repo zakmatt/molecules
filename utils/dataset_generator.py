@@ -3,6 +3,7 @@ import logging
 import os
 import pandas as pd
 
+from os.path import isfile
 from abc import ABCMeta, abstractmethod
 from sklearn.model_selection import train_test_split
 
@@ -25,12 +26,14 @@ class DatasetGenerator(metaclass=ABCMeta):
     CountVectorizerDatasetGenerator and MorganFingerprintDatasetGenerator
     """
 
+    name = 'abstract_class_data_generator'
+
     def __init__(self, data_path):
         """
         :param data_path:
         """
 
-        if not os.path.isfile(data_path):
+        if not isfile(data_path):
             logging.error(
                 'There is no dataset under \'{}\' path'.format(data_path)
             )
@@ -53,10 +56,6 @@ class DatasetGenerator(metaclass=ABCMeta):
         self._y_test = None
 
         self.data_path = data_path
-        self._read_dataset()
-        self.divide_into_training_and_test()
-        self.save_train_test_sets()
-        self._extract_x_y()
 
     @property
     def data_path(self):
@@ -82,13 +81,13 @@ class DatasetGenerator(metaclass=ABCMeta):
 
         self._data_path = data_path
 
-    def _read_dataset(self):
+    def read_dataset(self):
         """Dataset reading method"""
 
         self._dataset = pd.read_csv(self._data_path)
         self._dataset.fillna(value=-1, inplace=True)
 
-    def _extract_x_y(self):
+    def extract_x_y(self):
         """Extract input features and targets"""
 
         if not hasattr(self, '_train_val_set'):
@@ -109,10 +108,16 @@ class DatasetGenerator(metaclass=ABCMeta):
         :type test_set_size: float
         """
 
-        train_val, test = train_test_split(
-            self._dataset,
-            test_size=test_set_size
-        )
+        if isfile(
+                './data/train_set.csv'
+        ) and isfile('./data/test_set.csv'):
+            train_val = pd.read_csv('./data/train_set.csv')
+            test = pd.read_csv('./data/test_set.csv')
+        else:
+            train_val, test = train_test_split(
+                self._dataset,
+                test_size=test_set_size
+            )
         self._train_val_set = train_val
         self._test_set = test
 
@@ -121,9 +126,9 @@ class DatasetGenerator(metaclass=ABCMeta):
 
         train_path = './data/train_set.csv'
         test_path = './data/test_set.csv'
-        if not os.path.isfile(train_path) or not os.path.isfile(test_path):
-            self._train_val_set.to_csv('./data/train_set.csv')
-            self._test_set.to_csv('./data/test_set.csv')
+        if not isfile(train_path) or not isfile(test_path):
+            self._train_val_set.to_csv('./data/train_set.csv', index=False)
+            self._test_set.to_csv('./data/test_set.csv', index=False)
 
     def divide_into_training_and_validation(self, validation_set_size=0.1):
         """Divide dataset into training and validation sets

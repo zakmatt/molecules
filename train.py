@@ -4,7 +4,7 @@ from models.classification_architectures import ConvNetwork, DenseNetwork
 from utils.count_vectorizer_dataset_generator import (
     CountVectorizerDatasetGenerator
 )
-from utils.morgan_finderprint_dataset_generator import (
+from utils.morgan_fingerprint_dataset_generator import (
     MorganFingerprintDatasetGenerator
 )
 
@@ -18,10 +18,17 @@ def train_networks(data_path, number_of_epochs):
         DenseNetwork
     ]
 
+    save_dataset = True
     for dataset_type in dataset_types:
         dataset_generator = dataset_type(data_path)
+        dataset_generator.read_dataset()
+        dataset_generator.divide_into_training_and_test()
+        if save_dataset:
+            save_dataset = False
+            dataset_generator.save_train_test_sets()
+        dataset_generator.extract_x_y()
         for model_architecture in model_architectures:
-            for i in range(1, 11):
+            for i in range(1, 6):
                 dataset_generator.divide_into_training_and_validation()
                 x_train, y_train = dataset_generator.get_training_data()
                 x_val, y_val = dataset_generator.get_training_data()
@@ -29,7 +36,7 @@ def train_networks(data_path, number_of_epochs):
                     x_train.shape[1],
                     y_train.shape[1],
                     dataset_generator.loss_validate_data,
-                    './results/',
+                    './results/{}'.format(dataset_generator.name),
                     'train_{}.csv'.format(i)
                 )
                 model.create_model()

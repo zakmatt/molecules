@@ -1,4 +1,5 @@
 import numpy as np
+import rdkit
 
 from rdkit.Chem import rdMolDescriptors, rdmolfiles
 
@@ -12,12 +13,17 @@ class MorganFingerprintDatasetGenerator(DatasetGenerator):
     Fingerprint in order to transform input features
     """
 
+    name = 'morgan_fingerprint_data_generator'
+
     @staticmethod
     def _morgan_fingerprint_to_binary_vector(morgan_fingerprint):
-        """
+        """Convert morgan fingerprint in a
 
-        :param morgan_fingerprint:
-        :return:
+        :param morgan_fingerprint: Morgan Fingerprint
+        :type morgan_fingerprint: rdkit.DataStructs
+        .cDataStructs.ExplicitBitVect
+        :return: binary vector representation of a Morgan Fingerprint object
+        :rtype: list
         """
 
         bit_string = morgan_fingerprint.ToBitString()
@@ -27,10 +33,12 @@ class MorganFingerprintDatasetGenerator(DatasetGenerator):
 
     @staticmethod
     def _get_morgan_fingerprint_as_bit_vect(mol_smile):
-        """Get Morgan fingerprint as bit vector
+        """Convert mol representation to Morgan Fingerprint
 
         :param mol_smile: mol representation of smile
-        :return: list
+        :type mol_smile: rdkit.Chem.rdchem.Mol
+        :return: Morgan Fingerprint
+        :rtype: rdkit.DataStructs.cDataStructs.ExplicitBitVect
         """
 
         bit_info = {}
@@ -65,9 +73,4 @@ class MorganFingerprintDatasetGenerator(DatasetGenerator):
             ) for morgan_fingerprint in morgan_fingerprints
         ]
 
-        #binary_vecotrs = np.array(binary_vecotrs)
-        #binary_vecotrs = np.stack(binary_vecotrs, axis=0)
-        # binary_vecotrs = binary_vecotrs.reshape(
-        #    binary_vecotrs.shape[0], 1, binary_vecotrs.shape[1]
-        # )
         return np.array(binary_vecotrs)
