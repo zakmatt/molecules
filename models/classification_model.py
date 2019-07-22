@@ -3,7 +3,7 @@ import logging
 import os
 
 from abc import ABCMeta, abstractmethod
-from keras.callbacks import ReduceLROnPlateau
+from keras.callbacks import ReduceLROnPlateau, ModelCheckpoint
 from keras.layers import (
     Dense, Reshape
 )
@@ -83,10 +83,17 @@ class ClassModel(metaclass=ABCMeta):
             mode='auto', min_delta=0.0001, cooldown=5, min_lr=0.0001
         )
 
+        model_path = os.path.join(basedir, 'best_model.hdf5')
+        model_save = ModelCheckpoint(
+            model_path, save_best_only=True,
+            monitor='val_loss', mode='min'
+        )
+
         results_file = os.path.join(basedir, results_file)
 
         self.callbacks = [
             reduce_on_plateau,
+            model_save,
             LossValidateCallback(
                 loss_validate_data,
                 self.transform_input_features,
