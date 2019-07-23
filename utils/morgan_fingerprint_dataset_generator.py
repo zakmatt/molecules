@@ -1,5 +1,4 @@
 import numpy as np
-import rdkit
 
 from rdkit.Chem import rdMolDescriptors, rdmolfiles
 
