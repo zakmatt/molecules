@@ -1,7 +1,7 @@
 import errno
-import joblib
 import os
 
+from joblib import dump, load
 from sklearn.feature_extraction.text import CountVectorizer
 
 from utils.dataset_generator import DatasetGenerator
@@ -15,9 +15,10 @@ class CountVectorizerDatasetGenerator(DatasetGenerator):
     name = 'count_vectorizer_data_generator'
 
     def __init__(self, data_path):
-        """
+        """Initialization method
 
-        :param data_path:
+        :param data_path: path to a csv file containing data
+        :type data_path: str
         """
 
         DatasetGenerator.__init__(self, data_path)
@@ -36,7 +37,7 @@ class CountVectorizerDatasetGenerator(DatasetGenerator):
 
         current_dir_path = os.path.dirname(os.path.abspath(__file__))
         save_path = os.path.join(current_dir_path, 'count_vectorizer.pkl')
-        joblib.dump(self._vect, save_path, compress=9)
+        dump(self._vect, save_path, compress=9)
 
     def load_vect(self, path):
         """Load pickled, pre-trained count vectorizer
@@ -50,7 +51,7 @@ class CountVectorizerDatasetGenerator(DatasetGenerator):
                 errno.ENOENT, os.strerror(errno.ENOENT), path
             )
 
-        self._vect = joblib.load(path)
+        self._vect = load(path)
 
     def divide_into_training_and_validation(self, validation_set_size=0.1):
         """Divide dataset into training and validation sets
